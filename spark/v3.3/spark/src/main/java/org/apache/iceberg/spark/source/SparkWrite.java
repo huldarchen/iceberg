@@ -647,15 +647,17 @@ abstract class SparkWrite implements Write, RequiresDistributionAndOrdering {
       PartitionSpec spec = table.spec();
       FileIO io = table.io();
 
+      // SR1 [写入流程] 根据存储路径生成对底层文件的描述, 比如HadoopOutputFile
       OutputFileFactory fileFactory =
           OutputFileFactory.builderFor(table, partitionId, taskId).format(format).build();
+      // SR1 [写入流程] 实际的写入方法
       SparkFileWriterFactory writerFactory =
           SparkFileWriterFactory.builderFor(table)
               .dataFileFormat(format)
               .dataSchema(writeSchema)
               .dataSparkType(dsSchema)
               .build();
-
+      // SR1 [写入流程] 表是否分区表,来创建是否是分区写入的DataWriter,DataWriter是spark的接口
       if (spec.isUnpartitioned()) {
         return new UnpartitionedDataWriter(writerFactory, fileFactory, io, spec, targetFileSize);
 

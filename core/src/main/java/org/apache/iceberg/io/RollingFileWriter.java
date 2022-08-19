@@ -87,9 +87,13 @@ abstract class RollingFileWriter<T, W extends FileWriter<T, R>, R> implements Fi
 
   @Override
   public void write(T row) {
+    // SR1 [写入流程] 调用DataWriter进行写入,DataWriter底层是通过FileAppender.add(T)进行写入
     currentWriter.write(row);
     currentFileRows++;
-
+    /*
+     * SR1 [写入流程] 如果文件写入成功,默认是1000行 && currentWriter的长度 > 目标文件大小
+     * 打开新的文件writer
+     */
     if (shouldRollToNewFile()) {
       closeCurrentWriter();
       openCurrentWriter();
@@ -105,6 +109,8 @@ abstract class RollingFileWriter<T, W extends FileWriter<T, R>, R> implements Fi
 
     this.currentFile = newFile();
     this.currentFileRows = 0;
+    // SR1 [写入流程] dataWriter是通过FileWriterFactory.newDataWriter()的文件类型创建出来的对应的文件格式writer
+    // SR1 [写入流程] DataWriter的区别在于 fileAppender 和 文件格式
     this.currentWriter = newWriter(currentFile);
   }
 

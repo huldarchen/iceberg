@@ -585,8 +585,8 @@ public class ParquetValueWriters {
     @Override
     public void write(int repetitionLevel, S value) {
       for (int i = 0; i < writers.length; i += 1) {
-        Object fieldValue = get(value, i);
-        writers[i].write(repetitionLevel, fieldValue);
+        Object fieldValue = get(value, i); // SR1 [写入流程] 提取对应列的数据
+        writers[i].write(repetitionLevel, fieldValue); // SR1 [写入流程] 使用对应的数据类型的writer 进行写入
       }
     }
 
